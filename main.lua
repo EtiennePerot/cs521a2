@@ -23,6 +23,8 @@ local cannonballs = {}
 local gravityForce = gravity()
 local windForce = wind()
 local allForces = {gravityForce, windForce}
+local allObjects = {mountain1, mountain2, cannon1, cannon2}
+local isGameOver = false
 
 function love.load()
 	g.setBackgroundColor(8, 16, 48)
@@ -34,14 +36,22 @@ function addCannonball(ball)
 	end
 end
 
+function gameOver()
+	isGameOver = true
+end
+
 function love.update(dt)
+	dt = timeScale * dt
+	if isGameOver then
+		return
+	end
 	windForce:update(dt)
 	water:update(dt, windForce)
 	cannon1:update(dt)
 	cannon2:update(dt)
 	local cannonballsToRemove = {}
 	for c = 1, #cannonballs do
-		if cannonballs[c]:update(dt, allForces) then
+		if cannonballs[c]:update(dt, allForces, allObjects) then
 			table.insert(cannonballsToRemove, c)
 		end
 	end
@@ -96,4 +106,8 @@ function love.draw()
 		cannonballs[c]:draw()
 	end
 	windForce:draw()
+	if isGameOver then
+		g.setColor(255, 255, 255, 192)
+		g.print('Game Over', gameWidth / 2 - 140, gameHeight / 2 + 48, 0, 4, -4)
+	end
 end

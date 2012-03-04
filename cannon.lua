@@ -1,6 +1,7 @@
 require 'meter'
 require 'cannonball'
 require 'vector'
+require 'shapes'
 
 cannon = class('Cannon')
 
@@ -19,26 +20,38 @@ function cannon:initialize(mountain, facing)
 	local x = self.mountain:getRandomX(facing)
 	self.pos = vector(x, self.mountain:getY(x))
 	self.facing = facing
-	if self.facing == 'left' then
-		self.rotateBaseDraw = math.pi / 4
-	else
-		self.rotateBaseDraw = -math.pi / 4
-	end
 	self.angle = math.pi / 4
 	self.meter = meter(self.pos.x - meterWidth / 2, self.pos.y - meterOffset - meterHeight, meterWidth, meterHeight)
 	self.cooldown = 0
+	if self.facing == 'left' then
+		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, math.pi / 4)
+	else
+		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, -math.pi / 4)
+	end
+	self:updateCannonShape()
 end
 
 function cannon:update(dt)
 	self.cooldown = math.max(0, self.cooldown - dt)
 end
 
+function cannon:updateCannonShape()
+	local angle = self.angle
+	if self.facing == 'left' then
+		angle = math.pi - angle
+	end
+	local cannonCenter = vector(cannonLength / 2 - baseThickness / 2, 0):rotate(angle):add(self.pos)
+	self.cannonShape = rectangle(cannonCenter, cannonLength, cannonWidth, angle)
+end
+
 function cannon:angleUp(dt)
 	self.angle = math.min(math.pi / 2, self.angle + math.pi * dt / 1.5)
+	self:updateCannonShape()
 end
 
 function cannon:angleDown(dt)
 	self.angle = math.max(0, self.angle - math.pi * dt / 1.5)
+	self:updateCannonShape()
 end
 
 function cannon:powerUp(dt)
@@ -50,7 +63,7 @@ function cannon:powerDown(dt)
 end
 
 function cannon:getTip()
-	local tip = vector(cannonLength, 0)
+	local tip = vector(cannonLength - baseThickness / 2, 0)
 	tip = tip:rotate(self.angle)
 	if self.facing == 'left' then
 		tip.x = -tip.x
@@ -60,6 +73,10 @@ end
 
 function cannon:getTipAbsolute()
 	return self:getTip():add(self.pos)
+end
+
+function cannon:getShapes()
+	return {self.cannonShape}
 end
 
 function cannon:fire()
@@ -72,26 +89,10 @@ function cannon:fire()
 end
 
 function cannon:draw()
-	g.push()
-	g.translate(self.pos.x, self.pos.y)
-	-- Draw cannon
-	g.push()
 	g.setColor(192, 192, 192)
-	if self.facing == 'left' then
-		g.rotate(-self.angle - math.pi)
-	else
-		g.rotate(self.angle)
-	end
-	g.rectangle('fill', -cannonWidth / 2, -cannonWidth / 2, cannonLength, cannonWidth)
-	g.pop()
-	-- Draw base
-	g.push()
+	self.cannonShape:draw()
 	g.setColor(164, 164, 164)
-	g.rotate(self.rotateBaseDraw)
-	g.rectangle('fill', -baseWidth / 2, -baseThickness / 2, baseWidth, baseThickness)
-	g.setColor(0, 0, 0)
-	g.pop()
-	g.print(math.floor(math.abs(self.angle * 180 / math.pi)), -baseWidth / 3, baseThickness / 3, 0, 1, -1)
-	g.pop()
+	self.baseShape:draw()
+	g.print(math.floor(math.abs(self.angle * 180 / math.pi)), self.pos.x - baseWidth / 3, self.pos.y + baseThickness / 3, 0, 1, -1)
 	self.meter:draw()
 end

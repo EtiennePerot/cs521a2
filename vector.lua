@@ -9,13 +9,25 @@ function vector:add(vec)
 	return vector(self.x + vec.x, self.y + vec.y)
 end
 
+function vector:subtract(vec)
+	return self:add(vec:negate())
+end
+
 function vector:scale(scaleX, scaleY)
 	scaleY = scaleY or scaleX
 	return vector(self.x * scaleX, self.y * scaleY)
 end
 
+function vector:negate()
+	return self:scale(-1)
+end
+
 function vector:length()
 	return math.sqrt(self.x * self.x + self.y * self.y)
+end
+
+function vector:distance(vec)
+	return self:subtract(vec):length()
 end
 
 function vector:angle()
