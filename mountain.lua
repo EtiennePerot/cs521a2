@@ -6,7 +6,6 @@ function mountain:initialize(startX, endX, y, height, octaves)
 	self.endX = math.floor(endX)
 	self.width = self.endX - self.startX + 1
 	self.y = y
-	self.invY = invY(self.y)
 	self.height = height
 	local noise = {}
 	for o = 1, self.octaves do
@@ -25,7 +24,7 @@ function mountain:initialize(startX, endX, y, height, octaves)
 		for o = 1, self.octaves do
 			totalNoise = totalNoise + noise[o][i]
 		end
-		nonSmooth[self.startX + i] = invY(math.max(self.y, self.y + (totalNoise + gaussian) * height))
+		nonSmooth[self.startX + i] = math.max(self.y, self.y + (totalNoise + gaussian) * height)
 	end
 	-- Smoothing pass
 	self.yValues = {}
@@ -75,11 +74,25 @@ function mountain:getEndX()
 	return self.endX
 end
 
+function mountain:getRandomX(face)
+	local faceOffset = self.width * 0.3 -- At least 30% from the edge of the mountain, meaning at least 60% from the edge of the face
+	local faceWidth = self.width * 0.1 -- 10% range of possible values on the mountain, meaning 20% range of possible values on the face
+	if face == 'left' then
+		return math.random(math.floor(self.startX + faceOffset), math.floor(self.startX + faceOffset + faceWidth))
+	end
+	return math.random(math.ceil(self.endX - faceOffset - faceWidth), math.ceil(self.endX - faceOffset))
+end
+
+function mountain:getY(x)
+	x = math.floor(math.min(self.endX, math.max(self.startX, x)))
+	return self.yValues[x]
+end
+
 function mountain:draw()
 	g.setColor(64, 128, 32)
 	-- Sadly concave polygons cannot be drawn in LOVE without artifacts, so we're just gonna draw a ton of lines
 	g.setLineWidth(2) -- Necessary to prevent aliasing problems and stars shining through
 	for i = self.startX, self.endX do
-		g.line(i, self.invY, i, self.yValues[i])
+		g.line(i, self.y, i, self.yValues[i])
 	end
 end

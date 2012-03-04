@@ -1,7 +1,6 @@
 star = class('Star')
 
 function star:initialize(x, y)
-	y = invY(y)
 	self.poly = {
 		x - 2, y,
 		x, y + 2,
