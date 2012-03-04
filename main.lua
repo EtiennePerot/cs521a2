@@ -20,6 +20,9 @@ end
 local cannon1 = cannon(mountain1, 'right')
 local cannon2 = cannon(mountain2, 'left')
 local cannonballs = {}
+local gravityForce = gravity()
+local windForce = wind()
+local allForces = {gravityForce, windForce}
 
 function love.load()
 	g.setBackgroundColor(8, 16, 48)
@@ -32,12 +35,13 @@ function addCannonball(ball)
 end
 
 function love.update(dt)
-	water:update(dt)
+	windForce:update(dt)
+	water:update(dt, windForce)
 	cannon1:update(dt)
 	cannon2:update(dt)
 	local cannonballsToRemove = {}
 	for c = 1, #cannonballs do
-		if cannonballs[c]:update(dt) then
+		if cannonballs[c]:update(dt, allForces) then
 			table.insert(cannonballsToRemove, c)
 		end
 	end
@@ -91,4 +95,5 @@ function love.draw()
 	for c = 1, #cannonballs do
 		cannonballs[c]:draw()
 	end
+	windForce:draw()
 end

@@ -1,6 +1,7 @@
 water = class('Water')
 
 local waveSize = 10
+local waveSpeedFactor = 4
 
 function water:initialize(waterLevel)
 	self.waterLevel = waterLevel - waveSize
@@ -8,8 +9,8 @@ function water:initialize(waterLevel)
 	self.waveOffset = 0
 end
 
-function water:update(dt)
-	self.waveOffset = (self.waveOffset + dt * waveSize) % waveSize
+function water:update(dt, windForce)
+	self.waveOffset = (self.waveOffset + dt * waveSize * windForce:horizontalSpeed() * waveSpeedFactor) % waveSize
 end
 
 function water:draw()
