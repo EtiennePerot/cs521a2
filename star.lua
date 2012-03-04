@@ -16,6 +16,6 @@ function star:initialize(x, y)
 end
 
 function star:draw()
-	g.setColor(255, 224, 224)
+	g.setColor(255, 224, 224, 192)
 	g.polygon(self.mode, self.poly)
 end
