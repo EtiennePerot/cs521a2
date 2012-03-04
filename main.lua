@@ -19,13 +19,31 @@ for s = 1, math.random(32, 64) do
 end
 local cannon1 = cannon(mountain1, 'right')
 local cannon2 = cannon(mountain2, 'left')
+local cannonballs = {}
 
 function love.load()
 	g.setBackgroundColor(8, 16, 48)
 end
 
+function addCannonball(ball)
+	if ball ~= nil then
+		table.insert(cannonballs, ball)
+	end
+end
+
 function love.update(dt)
 	water:update(dt)
+	cannon1:update(dt)
+	cannon2:update(dt)
+	local cannonballsToRemove = {}
+	for c = 1, #cannonballs do
+		if cannonballs[c]:update(dt) then
+			table.insert(cannonballsToRemove, c)
+		end
+	end
+	for c = #cannonballsToRemove, 1, -1 do
+		table.remove(cannonballs, cannonballsToRemove[c])
+	end
 	if love.keyboard.isDown('w') then
 		cannon1:angleUp(dt)
 	end
@@ -38,6 +56,9 @@ function love.update(dt)
 	if love.keyboard.isDown('d') then
 		cannon1:powerUp(dt)
 	end
+	if love.keyboard.isDown('e') then
+		addCannonball(cannon1:fire())
+	end
 	if love.keyboard.isDown('up') then
 		cannon2:angleUp(dt)
 	end
@@ -49,6 +70,9 @@ function love.update(dt)
 	end
 	if love.keyboard.isDown('right') then
 		cannon2:powerUp(dt)
+	end
+	if love.keyboard.isDown(' ') then
+		addCannonball(cannon2:fire())
 	end
 end
 
@@ -64,4 +88,7 @@ function love.draw()
 	mountain2:draw()
 	cannon1:draw()
 	cannon2:draw()
+	for c = 1, #cannonballs do
+		cannonballs[c]:draw()
+	end
 end

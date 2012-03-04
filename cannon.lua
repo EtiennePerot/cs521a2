@@ -1,4 +1,6 @@
 require 'meter'
+require 'cannonball'
+require 'vector'
 
 cannon = class('Cannon')
 
@@ -9,11 +11,13 @@ local cannonWidth = 12
 local meterWidth = 128
 local meterHeight = 12
 local meterOffset = 24
+local cannonCooldown = 0.7
+local maxCannonballSpeed = 768
 
 function cannon:initialize(mountain, facing)
 	self.mountain = mountain
-	self.x = self.mountain:getRandomX(facing)
-	self.y = self.mountain:getY(self.x)
+	local x = self.mountain:getRandomX(facing)
+	self.pos = vector(x, self.mountain:getY(x))
 	self.facing = facing
 	if self.facing == 'left' then
 		self.rotateBaseDraw = math.pi / 4
@@ -21,7 +25,12 @@ function cannon:initialize(mountain, facing)
 		self.rotateBaseDraw = -math.pi / 4
 	end
 	self.angle = math.pi / 4
-	self.meter = meter(self.x - meterWidth / 2, self.y - meterOffset - meterHeight, meterWidth, meterHeight)
+	self.meter = meter(self.pos.x - meterWidth / 2, self.pos.y - meterOffset - meterHeight, meterWidth, meterHeight)
+	self.cooldown = 0
+end
+
+function cannon:update(dt)
+	self.cooldown = math.max(0, self.cooldown - dt)
 end
 
 function cannon:angleUp(dt)
@@ -40,9 +49,31 @@ function cannon:powerDown(dt)
 	self.meter:valueDown(dt)
 end
 
+function cannon:getTip()
+	local tip = vector(cannonLength, 0)
+	tip = tip:rotate(self.angle)
+	if self.facing == 'left' then
+		tip.x = -tip.x
+	end
+	return tip
+end
+
+function cannon:getTipAbsolute()
+	return self:getTip():add(self.pos)
+end
+
+function cannon:fire()
+	if self.cooldown > 0 then
+		return nil
+	end
+	self.cooldown = cannonCooldown
+	local direction = self:getTip():normalize():scale(self.meter:getValue() * maxCannonballSpeed)
+	return cannonball(self, direction)
+end
+
 function cannon:draw()
 	g.push()
-	g.translate(self.x, self.y)
+	g.translate(self.pos.x, self.pos.y)
 	-- Draw cannon
 	g.push()
 	g.setColor(192, 192, 192)
