@@ -23,10 +23,12 @@ function circle:initialize(center, radius)
 end
 
 function circle:collide(other)
-	if isInstance(rectangle, other) then
+	if instanceOf(rectangle, other) then
 		return other:collide(self)
 	end
-	-- Other collisions unimplemented
+	if instanceOf(circle, other) then
+		return self.center:distance(other.center) <= self.radius + other.radius
+	end
 end
 
 function circle:contains(vector)

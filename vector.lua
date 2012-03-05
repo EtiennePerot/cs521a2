@@ -30,6 +30,10 @@ function vector:distance(vec)
 	return self:subtract(vec):length()
 end
 
+function vector:dot(vec)
+	return self.x * vec.x + self.y * vec.y
+end
+
 function vector:angle()
 	if self.x == 0 then
 		if self.y > 0 then

@@ -20,6 +20,9 @@ end
 wind = force:subclass('Wind')
 
 local maxWindForce = 256
+if not windEnabled then
+	maxWindForce = 0
+end
 local minWindUpdate = 5
 local maxWindUpdate = 15
 local windHudSize = 64
