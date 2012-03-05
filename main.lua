@@ -28,6 +28,8 @@ local isGameOver = false
 
 function love.load()
 	g.setBackgroundColor(8, 16, 48)
+	overlayImage = g.newImage('mask.png')
+	gameOverImage = g.newImage('gameOver.png')
 end
 
 function addCannonball(ball)
@@ -36,57 +38,62 @@ function addCannonball(ball)
 	end
 end
 
-function gameOver()
-	isGameOver = true
+function gameOver(cannonHit)
+	for ind, obj in pairs(allObjects) do
+		if obj == cannonHit then
+			table.remove(allObjects, ind)
+			isGameOver = true
+			break
+		end
+	end
 end
 
 function love.update(dt)
 	dt = timeScale * dt
-	if isGameOver then
-		return
-	end
 	windForce:update(dt)
 	water:update(dt, windForce)
-	cannon1:update(dt)
-	cannon2:update(dt)
 	local cannonballsToRemove = {}
 	for c = 1, #cannonballs do
 		if cannonballs[c]:update(dt, allForces, allObjects) then
 			table.insert(cannonballsToRemove, c)
 		end
 	end
-	for c = #cannonballsToRemove, 1, -1 do
-		table.remove(cannonballs, cannonballsToRemove[c])
-	end
-	if love.keyboard.isDown('w') then
-		cannon1:angleUp(dt)
-	end
-	if love.keyboard.isDown('s') then
-		cannon1:angleDown(dt)
-	end
-	if love.keyboard.isDown('a') then
-		cannon1:powerDown(dt)
-	end
-	if love.keyboard.isDown('d') then
-		cannon1:powerUp(dt)
-	end
-	if love.keyboard.isDown('e') then
-		addCannonball(cannon1:fire())
-	end
-	if love.keyboard.isDown('up') then
-		cannon2:angleUp(dt)
-	end
-	if love.keyboard.isDown('down') then
-		cannon2:angleDown(dt)
-	end
-	if love.keyboard.isDown('left') then
-		cannon2:powerDown(dt)
-	end
-	if love.keyboard.isDown('right') then
-		cannon2:powerUp(dt)
-	end
-	if love.keyboard.isDown(' ') then
-		addCannonball(cannon2:fire())
+	if not isGameOver then
+		cannon1:update(dt)
+		cannon2:update(dt)
+		for c = #cannonballsToRemove, 1, -1 do
+			table.remove(cannonballs, cannonballsToRemove[c])
+		end
+		if love.keyboard.isDown('w') then
+			cannon1:angleUp(dt)
+		end
+		if love.keyboard.isDown('s') then
+			cannon1:angleDown(dt)
+		end
+		if love.keyboard.isDown('a') then
+			cannon1:powerDown(dt)
+		end
+		if love.keyboard.isDown('d') then
+			cannon1:powerUp(dt)
+		end
+		if love.keyboard.isDown('e') then
+			addCannonball(cannon1:fire())
+		end
+		if love.keyboard.isDown('up') then
+			cannon2:angleUp(dt)
+		end
+		if love.keyboard.isDown('down') then
+			cannon2:angleDown(dt)
+		end
+		if love.keyboard.isDown('left') then
+			cannon2:powerDown(dt)
+		end
+		if love.keyboard.isDown('right') then
+			cannon2:powerUp(dt)
+		end
+		if love.keyboard.isDown(' ') then
+			addCannonball(cannon2:fire())
+		end
 	end
 end
 
@@ -98,16 +105,15 @@ function love.draw()
 	for s = 1, #stars do
 		stars[s]:draw()
 	end
-	mountain1:draw()
-	mountain2:draw()
-	cannon1:draw()
-	cannon2:draw()
+	for o = 1, #allObjects do
+		allObjects[o]:draw()
+	end
 	for c = 1, #cannonballs do
 		cannonballs[c]:draw()
 	end
 	windForce:draw()
 	if isGameOver then
-		g.setColor(255, 255, 255, 192)
-		g.print('Game Over', gameWidth / 2 - 140, gameHeight / 2 + 48, 0, 4, -4)
+		g.draw(gameOverImage, 0, gameHeight, 0, 1, -1)
 	end
+	g.draw(overlayImage, 0, gameHeight, 0, 1, -1)
 end

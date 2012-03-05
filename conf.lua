@@ -10,7 +10,7 @@ function love.conf(t)
 	t.modules.audio = false
 	t.modules.keyboard = true
 	t.modules.event = true
-	t.modules.image = false
+	t.modules.image = true
 	t.modules.graphics = true
 	t.modules.timer = true
 	t.modules.mouse = true

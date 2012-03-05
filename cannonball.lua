@@ -26,7 +26,7 @@ function cannonball:update(dt, forces, objects)
 				local shapes = objects[o]:getShapes()
 				for s = 1, #shapes do
 					if shapes[s]:collide(self.shape) then
-						gameOver()
+						gameOver(objects[o])
 					else -- It's a mountain
 						-- todo
 					end
