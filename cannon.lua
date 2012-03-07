@@ -20,13 +20,13 @@ function cannon:initialize(mountain, facing)
 	local x = self.mountain:getRandomX(facing)
 	self.pos = vector(x, self.mountain:getY(x))
 	self.facing = facing
-	self.angle = math.pi / 4
+	self.angle = quarterPi
 	self.meter = meter(self.pos.x - meterWidth / 2, self.pos.y - meterOffset - meterHeight, meterWidth, meterHeight)
 	self.cooldown = 0
 	if self.facing == 'left' then
-		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, math.pi / 4)
+		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, quarterPi)
 	else
-		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, -math.pi / 4)
+		self.baseShape = rectangle(self.pos, baseWidth, baseThickness, -quarterPi)
 	end
 	self:updateCannonShape()
 end
@@ -38,19 +38,19 @@ end
 function cannon:updateCannonShape()
 	local angle = self.angle
 	if self.facing == 'left' then
-		angle = math.pi - angle
+		angle = pi - angle
 	end
 	local cannonCenter = vector(cannonLength / 2 - baseThickness / 2, 0):rotate(angle):add(self.pos)
 	self.cannonShape = rectangle(cannonCenter, cannonLength, cannonWidth, angle)
 end
 
 function cannon:angleUp(dt)
-	self.angle = math.min(math.pi / 2, self.angle + math.pi * dt / 1.5)
+	self.angle = math.min(halfPi, self.angle + threeQuartersPi * dt)
 	self:updateCannonShape()
 end
 
 function cannon:angleDown(dt)
-	self.angle = math.max(0, self.angle - math.pi * dt / 1.5)
+	self.angle = math.max(0, self.angle - threeQuartersPi * dt)
 	self:updateCannonShape()
 end
 
@@ -93,6 +93,6 @@ function cannon:draw()
 	self.cannonShape:draw()
 	g.setColor(164, 164, 164)
 	self.baseShape:draw()
-	g.print(math.floor(math.abs(self.angle * 180 / math.pi)), self.pos.x - baseWidth / 3, self.pos.y + baseThickness / 3, 0, 1, -1)
+	g.print(math.floor(math.abs(self.angle * radToDeg)), self.pos.x - baseWidth / 3, self.pos.y + baseThickness / 3, 0, 1, -1)
 	self.meter:draw()
 end

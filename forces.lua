@@ -10,11 +10,11 @@ end
 gravity = force:subclass('Gravity')
 
 function gravity:initialize()
-	self.pull = vector(0, -384)
+	self.pull = vector(0, -9.81)
 end
 
-function gravity:apply(dt, position, speed)
-	return position, speed:add(self.pull:scale(dt))
+function gravity:apply(dt, position, speed, mass)
+	return position, speed:add(self.pull:scale(mass * dt))
 end
 
 wind = force:subclass('Wind')
@@ -49,7 +49,7 @@ function wind:horizontalSpeed() -- Used to determine water waves speed/direction
 	return self.pull.x / maxWindForce
 end
 
-function wind:apply(dt, position, speed)
+function wind:apply(dt, position, speed, mass)
 	return position, speed:add(self.pull:scale(dt))
 end
 

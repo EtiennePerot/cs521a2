@@ -108,7 +108,7 @@ function segment:initialize(p1, p2)
 	self.difference = self.p2:subtract(self.p1)
 	self.length = self.difference:length()
 	self.normalDifference = self.difference:normalize()
-	self.normal = self.normalDifference:rotate(math.pi / 2)
+	self.normal = self.normalDifference:rotate(halfPi)
 end
 
 function segment:getNormal()

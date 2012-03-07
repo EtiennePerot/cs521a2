@@ -5,6 +5,7 @@ require 'water'
 cannonball = class('Cannonball')
 
 local cannonballSize = 6
+local cannoballMass = 39.15
 local cannonballActivation = 0.15
 
 function cannonball:initialize(cannon, direction)
@@ -19,13 +20,12 @@ function cannonball:initialize(cannon, direction)
 	self.blue = math.random(64, 255)
 end
 
-function cannonball:forcePass(dt, gravityForce, windForce, waterLevel)
+function cannonball:forcePass(dt, forces, waterLevel)
 	self.active = math.min(self.active + dt, cannonballActivation)
-	self.shape.center, self.speed = gravityForce:apply(dt, self.shape.center, self.speed)
-	if not self.touchedGround then
-		self.shape.center, self.speed = windForce:apply(dt, self.shape.center, self.speed)
+	for f = 1, #forces do
+		self.shape.center, self.speed = forces[f]:apply(dt, self.shape.center, self.speed, cannoballMass)
 	end
-	self.shape.center = self.shape.center:add(self.speed:scale(dt))
+self.shape.center = self.shape.center:add(self.speed:scale(dt))
 	return self.shape.center.x < 0 or self.shape.center.x > gameWidth or self.shape.center.y < waterLevel -- Don't check if above window, because it may fall back down
 end
 

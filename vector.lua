@@ -42,16 +42,6 @@ function vector:dot(vec)
 	return self.x * vec.x + self.y * vec.y
 end
 
-function vector:angle()
-	if self.x == 0 then
-		if self.y > 0 then
-			return math.pi / 2
-		end
-		return -math.pi / 2
-	end
-	return math.atan(self.y / self.x)
-end
-
 function vector:normalize()
 	return self:scale(1 / self:length())
 end

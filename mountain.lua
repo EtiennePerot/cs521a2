@@ -17,7 +17,7 @@ function mountain:initialize(startX, endX, y, height, octaves)
 	local nonSmooth = {}
 	local totalNoise
 	local gaussian -- Use a gaussian curve to provide the basic shape of the mountain
-	local gaussianFactor = 1 / math.sqrt(2 * math.pi)
+	local gaussianFactor = 1 / math.sqrt(doublePi)
 	local gaussianDenominator = (self.width * self.width / 32)
 	local tempWidth
 	for i = 0, self.width do
@@ -39,11 +39,9 @@ function mountain:initialize(startX, endX, y, height, octaves)
 	self.yValues[self.startX] = 3 * nonSmooth[self.startX] / 4 + nonSmooth[self.startX + 1] / 4
 	self.yValues[self.endX] = 3 * nonSmooth[self.endX] / 4 + nonSmooth[self.endX - 1] / 4
 	self.yValues[self.endX + 1] = 0
-	-- Build geometry
-	self.points = {}
+	-- Build geometry segments
 	self.segments = {}
 	for i = self.startX - 1, self.endX do
-		self.points[i] = vector(i, self.yValues[i])
 		self.segments[i] = segment(vector(i, self.yValues[i]), vector(i + 1, self.yValues[i + 1]))
 	end
 end
@@ -67,7 +65,7 @@ function mountain:genOctave(octave)
 		relativeX = i / waveLength
 		noiseBefore = math.floor(relativeX)
 		progress = relativeX - noiseBefore
-		sineProgress = math.sin(progress * math.pi) / 2
+		sineProgress = math.sin(progress * pi) / 2
 		if progress > 0.5 then
 			sineProgress = 1 - sineProgress
 		end
@@ -100,21 +98,18 @@ function mountain:getY(x)
 	return self.yValues[x]
 end
 
-function mountain:getPoints()
-	return self.points
-end
-
 function mountain:getSegments()
 	return self.segments
 end
 
 function mountain:draw()
-	g.setColor(64, 128, 32)
 	-- Sadly concave polygons cannot be drawn in LOVE without artifacts, so we're just gonna draw a ton of lines
+	g.setColor(64, 128, 32)
 	g.setLineWidth(2) -- Necessary to prevent aliasing problems and stars shining through
 	for i = self.startX, self.endX do
 		g.line(i, self.y, i, self.yValues[i])
 	end
+	-- Now draw the outline
 	g.setColor(128, 128, 128)
 	g.setLineWidth(3)
 	for i = self.startX - 1, self.endX do

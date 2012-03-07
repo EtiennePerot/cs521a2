@@ -1,0 +1,62 @@
+COMP 521 - Assignment 2
+Etienne Perot
+
+This is a LÖVE game. You need LÖVE to play it:
+
+    https://love2d.org/
+
+Once installed, just double-click the .love file to play it, or run in a terminal:
+
+    love /path/to/game.love
+
+Controls:
+  * W/A/S/D: Control left cannon angle/power
+  * E: Fire left cannon
+  * Arrow keys: Control right cannon angle/power
+  * Spacebar: Fire right cannon
+  * R: Reset and start a new game (with newly-randomized terrain)
+  * Shift: Slow-motion mode
+  * Ctrl: Even slower slow-motion mode
+  * Shift+Ctrl: Super slow-motion
+
+A .love file is just a .zip file with a different extension.
+As such, to get the source code, rename the .love file to .zip and extract.
+
+Brief overview of what file does what:
+  * cannonball.lua: Cannonball object representation. collision handling of cannonballs.
+  * cannon.lua: The cannon objects, methods to change angle/power and fire.
+  * conf.lua: Some parameters passed to LÖVE. It is possible to change things like
+    resolution or antialiasing there.
+  * forces.lua: Contains gravity and wind forces code.
+  * globals.lua: Some global variables shared to all files.
+  * main.lua: The main file, ran by LÖVE on startup. Has the initialization and main loop.
+  * meter.lua: The power indication meter displayed under each cannon.
+  * middleclass.lua: Implementation of classes in Lua (which doesn't support them natively).
+    This class implementation was not written by me (credits in middleclass.lua).
+  * moon.lua: The moon up there in the night sky
+  * mountain.lua: The mountain class, where the Perlin noise code is.
+  * shapes.lua: Minimal set of shape classes and collision detection methods.
+  * star.lua: Stars displayed in the night sky.
+  * vector.lua: Minimal 2D vector class.
+  * water.lua: The water and animated waves (that follow wind speed).
+
+Cannonball-cannon collision should be pixel-perfect.
+
+Cannonball-cannonball collisions in the air should work fine, except in the following rare case:
+    Cannonball 1  o ---->
+                  <---- o  Cannonball 2
+    Cannonball 1 and cannonball 2 are going in opposite directions, one under another, such that
+    they brush exactly against each other. In such a scenario, they tend to attach themselves to
+    the other cannonball, then go around in circles. It is pretty funny to watch.
+
+Cannonball-mountain collisions should work fine, and the cannonball should roll smoothly.
+(Note that wind still applies to cannonballs on the ground. When there is a strong wind
+ and a low slope, the cannonball may stay in place or even go upwards until the wind changes.)
+
+Cannonball-cannonball collision while both cannonballs are on the ground doesn't work so well.
+
+Collisions are more accurate in slow-motion due to having more frames (less movement from one
+frame to the next). As such, it can be useful to always set a slower speed to the game world.
+To this end, there is a variable called "timeScale" in globals.lua, which represents how much
+time should be slowed up/down on top of the Shift/Ctrl slow-motion keys.
+For example, a timeScale value of 0.2 will make time 80% slower.
