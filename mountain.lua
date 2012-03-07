@@ -1,3 +1,6 @@
+require 'vector'
+require 'shapes'
+
 mountain = class('Mountain')
 
 function mountain:initialize(startX, endX, y, height, octaves)
@@ -28,12 +31,21 @@ function mountain:initialize(startX, endX, y, height, octaves)
 	end
 	-- Smoothing pass
 	self.yValues = {}
-	for i = self.startX + 1, self.endX - 1 do
+	for i = self.startX + 1, self.endX do
 		self.yValues[i] = nonSmooth[i - 1] / 4 + nonSmooth[i] / 2 + nonSmooth[i + 1] / 4
 	end
 	-- Force values at endpoints
+	self.yValues[self.startX - 1] = 0
 	self.yValues[self.startX] = 3 * nonSmooth[self.startX] / 4 + nonSmooth[self.startX + 1] / 4
 	self.yValues[self.endX] = 3 * nonSmooth[self.endX] / 4 + nonSmooth[self.endX - 1] / 4
+	self.yValues[self.endX + 1] = 0
+	-- Build geometry
+	self.points = {}
+	self.segments = {}
+	for i = self.startX - 1, self.endX do
+		self.points[i] = vector(i, self.yValues[i])
+		self.segments[i] = segment(vector(i, self.yValues[i]), vector(i + 1, self.yValues[i + 1]))
+	end
 end
 
 function mountain:genOctave(octave)
@@ -88,11 +100,24 @@ function mountain:getY(x)
 	return self.yValues[x]
 end
 
+function mountain:getPoints()
+	return self.points
+end
+
+function mountain:getSegments()
+	return self.segments
+end
+
 function mountain:draw()
 	g.setColor(64, 128, 32)
 	-- Sadly concave polygons cannot be drawn in LOVE without artifacts, so we're just gonna draw a ton of lines
 	g.setLineWidth(2) -- Necessary to prevent aliasing problems and stars shining through
 	for i = self.startX, self.endX do
 		g.line(i, self.y, i, self.yValues[i])
+	end
+	g.setColor(128, 128, 128)
+	g.setLineWidth(3)
+	for i = self.startX - 1, self.endX do
+		self.segments[i]:draw()
 	end
 end

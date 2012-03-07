@@ -10,7 +10,7 @@ function vector:add(vec)
 end
 
 function vector:subtract(vec)
-	return self:add(vec:negate())
+	return vector(self.x - vec.x, self.y - vec.y)
 end
 
 function vector:scale(scaleX, scaleY)
@@ -19,15 +19,23 @@ function vector:scale(scaleX, scaleY)
 end
 
 function vector:negate()
-	return self:scale(-1)
+	return vector(-self.x, -self.y)
 end
 
 function vector:length()
-	return math.sqrt(self.x * self.x + self.y * self.y)
+	return math.sqrt(self:squareLength())
+end
+
+function vector:squareLength()
+	return self.x * self.x + self.y * self.y
 end
 
 function vector:distance(vec)
 	return self:subtract(vec):length()
+end
+
+function vector:squareDistance(vec)
+	return self:subtract(vec):squareLength()
 end
 
 function vector:dot(vec)

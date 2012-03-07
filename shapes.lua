@@ -4,6 +4,17 @@ function clamp(lowerBound, value, upperBound)
 	return math.min(upperBound, math.max(lowerBound, value))
 end
 
+function sgn(x)
+	if x < 0 then
+		return -1
+	end
+	return 1
+end
+
+function sgnInvert(x)
+	return -sgn(x)
+end
+
 shape = class('Shape')
 function shape:collide(other)
 	return false
@@ -20,6 +31,7 @@ circle = shape:subclass('Circle')
 function circle:initialize(center, radius)
 	self.center = center
 	self.radius = radius
+	self.radiusSquare = radius * radius
 end
 
 function circle:collide(other)
@@ -29,10 +41,22 @@ function circle:collide(other)
 	if instanceOf(circle, other) then
 		return self.center:distance(other.center) <= self.radius + other.radius
 	end
+	if instanceOf(segment, other) then
+		local projLength = clamp(0, self.center:subtract(other.p1):dot(other.normalDifference), other.length)
+		local projected = other.p1:add(other.normalDifference:scale(projLength))
+		return self:contains(projected)
+	end
+	-- Assume it is a series of points
+	for p = 1, #other do
+		if self:contains(other[p]) then
+			return true
+		end
+		return false
+	end
 end
 
-function circle:contains(vector)
-	return vector:distance(self.center) <= self.radius
+function circle:contains(vec)
+	return vec:distance(self.center) <= self.radius
 end
 
 function circle:draw()
@@ -75,4 +99,28 @@ function rectangle:draw()
 	g.rectangle('fill', -self.halfWidth, -self.halfHeight, self.width, self.height)
 	g.setColor(0, 0, 0)
 	g.pop()
+end
+
+segment = shape:subclass('Segment')
+function segment:initialize(p1, p2)
+	self.p1 = p1
+	self.p2 = p2
+	self.difference = self.p2:subtract(self.p1)
+	self.length = self.difference:length()
+	self.normalDifference = self.difference:normalize()
+	self.normal = self.normalDifference:rotate(math.pi / 2)
+end
+
+function segment:getNormal()
+	return self.normal
+end
+
+function segment:collide(other)
+	if instanceOf(circle, other) then
+		return other:collide(self)
+	end
+end
+
+function segment:draw()
+	g.line(self.p1.x, self.p1.y, self.p2.x, self.p2.y)
 end

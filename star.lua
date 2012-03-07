@@ -16,5 +16,6 @@ end
 
 function star:draw()
 	g.setColor(255, 224, 224, 192)
+	g.setLineWidth(1)
 	g.polygon(self.mode, self.poly)
 end

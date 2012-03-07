@@ -15,7 +15,7 @@ local waterObject, waterLevel
 local moonObject, stars
 local cannon1, cannon2, cannonballs
 local gravityForce, windForce
-local allForces, allObjects
+local allObjects
 local isGameOver
 
 function love.load()
@@ -36,7 +36,6 @@ function love.load()
 	cannonballs = {}
 	gravityForce = gravity()
 	windForce = wind()
-	allForces = {gravityForce, windForce}
 	allObjects = {mountain1, mountain2, cannon1, cannon2}
 	isGameOver = false
 end
@@ -67,11 +66,14 @@ function love.update(dt)
 	if k.isDown('lshift') or k.isDown('rshift') then
 		dt = dt / 4
 	end
+	if k.isDown('lctrl') or k.isDown('rctrl') then
+		dt = dt / 16
+	end
 	windForce:update(dt)
 	waterObject:update(dt, windForce)
 	local cannonballsToRemove = {}
 	for c = 1, #cannonballs do
-		if cannonballs[c]:forcePass(dt, allForces, waterLevel) then
+		if cannonballs[c]:forcePass(dt, gravityForce, windForce, waterLevel) then
 			table.insert(cannonballsToRemove, c)
 		end
 	end
